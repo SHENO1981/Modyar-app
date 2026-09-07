@@ -1,0 +1,11 @@
+{
+  "name": "مدیریت شخصی معاون فنی هنرستان",
+  "short_name": "معاون فنی",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fa",
+  "theme_color": "#173b68",
+  "lang": "fa",
+  "dir": "rtl"
+}
