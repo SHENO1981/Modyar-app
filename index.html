@@ -65,6 +65,10 @@ input[type="date"]{color-scheme:dark}
   .nav button span{font-size:17px}
 }
 
+
+.filepick{display:block;border:1px dashed #667085;border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:#18202d;font-weight:700}
+#archivePreview img{max-width:100%;max-height:220px;border-radius:12px;margin-top:8px}
+.pdf-preview{padding:14px;border-radius:12px;background:#202938;margin-top:8px;text-align:center}
 </style>
 </head>
 <body>
@@ -109,27 +113,54 @@ input[type="date"]{color-scheme:dark}
  <div class="section"><h2>انجام‌شده‌ها</h2><div id="personalDone"></div></div>
 </section>
 
-<button class="fab" onclick="openModal()">+</button>
+<button class="fab" onclick="smartAdd()">+</button>
 <nav class="nav"><button class="active" data-page="today"><span>⌂</span>امروز</button><button data-page="tasks"><span>☑</span>کارها</button><button data-page="calendar"><span>▣</span>تقویم</button><button data-page="workshops"><span>🛠</span>کارگاه‌ها</button><button data-page="teachers"><span>👨‍🏫</span>هنرآموزان</button>
 <button data-page="archive"><span>🗂</span>بایگانی</button>
 <button data-page="personal"><span>🔐</span>شخصی</button>
 </nav>
 </div>
-<div class="modal" id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">ثبت جدید</h2><button class="close" onclick="closeModal()">×</button></div><div class="types" id="types"><button onclick="showForm('task')">✅<br>کار</button><button onclick="showForm('follow')">🔁<br>پیگیری</button><button onclick="showForm('event')">📅<br>رویداد</button><button onclick="showForm('issue')">🔧<br>خرابی / مشکل</button><button onclick="showForm('circular')">📄<br>بخشنامه</button><button onclick="showForm('note')">📝<br>یادداشت سریع</button></div>
-<form class="form" id="entryForm" style="display:none" onsubmit="saveEntry(event)"><input type="hidden" id="entryType"><input type="hidden" id="entryEditId"><input id="entryTitle" required placeholder="عنوان"><select id="entryPriority"><option value="normal">عادی</option><option value="important">مهم</option><option value="urgent">فوری</option></select><label class="small">ددلاین / تاریخ</label><input id="entryDate" type="date"><label class="small">یادآوری چند روز قبل از ددلاین؟</label><input id="entryReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3"><input id="entryPerson" placeholder="شخص / مسئول مرتبط"><select id="entryStatus"><option value="open">انجام‌نشده</option><option value="progress">در حال انجام</option><option value="waiting">منتظر دیگران</option><option value="done">انجام‌شده</option></select><textarea id="entryNotes" rows="3" placeholder="توضیحات"></textarea><button class="primary" type="submit">ذخیره</button></form>
+<div class="modal" id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">ثبت جدید</h2><button class="close" onclick="closeModal()">×</button></div><div class="types" id="types" style="display:none"></div>
+<form class="form" id="entryForm" style="display:none" onsubmit="saveEntry(event)"><input type="hidden" id="entryEditId"><input id="entryTitle" required placeholder="عنوان">
+<label class="small">نوع کار</label>
+<select id="entryType">
+<option value="task">کار</option><option value="follow">پیگیری</option><option value="event">رویداد</option>
+<option value="issue">خرابی / مشکل</option><option value="circular">بخشنامه</option><option value="note">یادداشت</option>
+</select><select id="entryPriority"><option value="normal">عادی</option><option value="important">مهم</option><option value="urgent">فوری</option></select><label class="small">ددلاین / تاریخ</label><input id="entryDate" type="date"><label class="small">یادآوری چند روز قبل از ددلاین؟</label><input id="entryReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3"><input id="entryPerson" placeholder="شخص / مسئول مرتبط"><select id="entryStatus"><option value="open">انجام‌نشده</option><option value="progress">در حال انجام</option><option value="waiting">منتظر دیگران</option><option value="done">انجام‌شده</option></select><textarea id="entryNotes" rows="3" placeholder="توضیحات"></textarea><button class="primary" type="submit">ذخیره</button></form>
 <form class="form" id="teacherForm" style="display:none" onsubmit="saveTeacher(event)"><input type="hidden" id="teacherEditId"><input id="teacherFullName" required placeholder="نام و نام خانوادگی هنرآموز"><input id="teacherField" placeholder="رشته / گروه آموزشی"><input id="teacherPhone" placeholder="شماره تماس"><textarea id="teacherNotes" rows="3" placeholder="توضیحات"></textarea><button class="primary" type="submit">ذخیره هنرآموز</button></form>
 <form class="form" id="teacherDueForm" style="display:none" onsubmit="saveTeacherDue(event)"><input type="hidden" id="dueEditId"><input id="dueTitle" required placeholder="مثلاً تحویل گزارش ماهانه"><label class="small">ددلاین</label><input id="dueDate" type="date"><label class="small">یادآوری چند روز قبل از ددلاین؟</label><input id="dueReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3"><select id="dueRepeat"><option value="none">بدون تکرار</option><option value="daily">روزانه</option><option value="weekly">هفتگی</option><option value="monthly">ماهانه</option></select><select id="dueStatus"><option value="waiting">منتظر تحویل</option><option value="done">تحویل شد</option><option value="incomplete">ناقص</option></select><textarea id="dueNotes" rows="3" placeholder="توضیحات / نحوه تحویل"></textarea><button class="primary" type="submit">ذخیره</button></form>
 <form class="form" id="workshopForm" style="display:none" onsubmit="saveWorkshop(event)"><input type="hidden" id="workshopEditIndex"><input id="workshopName" required placeholder="نام کارگاه"><input id="workshopField" placeholder="رشته / زمینه"><select id="workshopStatus"><option value="فعال">فعال</option><option value="نیازمند بررسی">نیازمند بررسی</option><option value="غیرفعال">غیرفعال</option></select><button class="primary" type="submit">ذخیره کارگاه</button></form>
+
+<form class="form" id="archiveForm" style="display:none" onsubmit="saveArchiveDoc(event)">
+<input type="hidden" id="archiveEditId">
+<input id="archiveTitle" required placeholder="عنوان مدرک">
+<label class="small">نوع مدرک</label>
+<select id="archiveType"><option>بخشنامه</option><option>نامه اداری</option><option>فرم</option><option>صورتجلسه</option><option>گزارش</option><option>سایر</option></select>
+<label class="small">تاریخ</label><input id="archiveDate" type="date">
+<textarea id="archiveNotes" rows="3" placeholder="توضیحات"></textarea>
+<label class="filepick" for="archiveFile">📎 انتخاب عکس یا PDF مدرک</label>
+<input id="archiveFile" type="file" accept="image/*,application/pdf" onchange="previewArchiveFile()" style="display:none">
+<div id="archiveFileInfo" class="small">هنوز فایلی انتخاب نشده است.</div>
+<div id="archivePreview"></div>
+<button class="primary" type="submit">ذخیره مدرک</button>
+</form>
+<form class="form" id="personalForm" style="display:none" onsubmit="savePersonal(event)">
+<input type="hidden" id="personalEditId">
+<input id="personalTitle" required placeholder="عنوان کار شخصی">
+<label class="small">تاریخ / مهلت (اختیاری)</label><input id="personalDate" type="date">
+<label class="small">یادآوری چند روز قبل؟ (اختیاری)</label><input id="personalReminderDays" type="number" min="0" step="1" placeholder="مثلاً 1">
+<textarea id="personalNotes" rows="3" placeholder="توضیحات (اختیاری)"></textarea>
+<button class="primary" type="submit">ثبت کار شخصی</button>
+</form>
 </div></div>
 <script>
 const KEY='honarestan_assistant_v2_mobile';
-const defaultDB=()=>({version:8,lastBackup:null,items:[],workshops:[{name:'کارگاه برق',field:'برق',status:'فعال'},{name:'کارگاه مکانیک',field:'مکانیک',status:'فعال'},{name:'کارگاه کامپیوتر',field:'کامپیوتر',status:'فعال'}],teachers:[],teacherDues:[]});
+const defaultDB=()=>({version:9,lastBackup:null,items:[],workshops:[{name:'کارگاه برق',field:'برق',status:'فعال'},{name:'کارگاه مکانیک',field:'مکانیک',status:'فعال'},{name:'کارگاه کامپیوتر',field:'کامپیوتر',status:'فعال'}],teachers:[],teacherDues:[]});
 let db;try{db=JSON.parse(localStorage.getItem(KEY))||defaultDB()}catch(e){db=defaultDB()}
 if(!Array.isArray(db.items))db.items=[];if(!Array.isArray(db.workshops))db.workshops=[];if(!Array.isArray(db.teachers))db.teachers=[];if(!Array.isArray(db.teacherDues))db.teacherDues=[];
 db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});if(!Array.isArray(db.personalItems))db.personalItems=[];
 db.personalItems.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});
 if(!Array.isArray(db.archiveMeta))db.archiveMeta=[];
-db.version=8;
+db.version=9;
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));updateBackupStatus()};
 function isoToday(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
 function parseISO(s){if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
@@ -296,8 +327,97 @@ function renderCalendar(){if(!document.getElementById('calGrid'))return;calTitle
 function selectCalendarDay(iso,jd){selectedISO=iso;renderCalendar()}function renderSelectedDay(){const arr=itemsOnDate(selectedISO),d=parseISO(selectedISO);selectedDayTitle.textContent=d?`موارد ${faDate(d)}`:'موارد روز انتخاب‌شده';selectedDayItems.innerHTML=arr.length?arr.map(x=>x.kind==='item'?itemHTML(x.o):dueHTML(x.o)).join(''):'<div class="empty">برای این روز موردی ثبت نشده است.</div>'}
 function changeJMonth(n){calJ.jm+=n;if(calJ.jm<1){calJ.jm=12;calJ.jy--}if(calJ.jm>12){calJ.jm=1;calJ.jy++}const g=toGregorian(calJ.jy,calJ.jm,1);selectedISO=isoFromG(g);renderCalendar()}function goCalendarToday(){const d=new Date(),j=toJalaali(d.getFullYear(),d.getMonth()+1,d.getDate());calJ={jy:j.jy,jm:j.jm};selectedISO=isoToday();renderCalendar()}
 function exportBackup(){const stamp=new Date().toISOString().replace(/[:.]/g,'-'),payload={...db,exportedAt:new Date().toISOString()},blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`modyar-backup-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);db.lastBackup=new Date().toISOString();save()}
-function restoreBackup(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const incoming=JSON.parse(r.result);if(!incoming||!Array.isArray(incoming.items)||!Array.isArray(incoming.workshops))throw new Error('invalid');if(confirm('اطلاعات فعلی با اطلاعات فایل پشتیبان جایگزین شود؟')){db={...defaultDB(),...incoming};if(!Array.isArray(db.teachers))db.teachers=[];if(!Array.isArray(db.teacherDues))db.teacherDues=[];db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});db.version=8;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.')}}catch(err){alert('فایل پشتیبان معتبر نیست.')}e.target.value=''};r.readAsText(file,'utf-8')}
+function restoreBackup(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const incoming=JSON.parse(r.result);if(!incoming||!Array.isArray(incoming.items)||!Array.isArray(incoming.workshops))throw new Error('invalid');if(confirm('اطلاعات فعلی با اطلاعات فایل پشتیبان جایگزین شود؟')){db={...defaultDB(),...incoming};if(!Array.isArray(db.teachers))db.teachers=[];if(!Array.isArray(db.teacherDues))db.teacherDues=[];db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});db.version=9;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.')}}catch(err){alert('فایل پشتیبان معتبر نیست.')}e.target.value=''};r.readAsText(file,'utf-8')}
 function updateBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;if(!db.lastBackup){el.textContent='هنوز فایل پشتیبان نگرفته‌ای.';return}const d=new Date(db.lastBackup);el.textContent='آخرین پشتیبان: '+faDate(d)+'، '+d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}
 save();render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+/* ===== V9 simplified entry flows ===== */
+function hideAllModalForms(){
+ ['entryForm','teacherForm','teacherDueForm','workshopForm','archiveForm','personalForm'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});
+ const t=document.getElementById('types');if(t)t.style.display='none';
+}
+function currentPageId(){return document.querySelector('.page.active')?.id||'today'}
+function smartAdd(){
+ const page=currentPageId();
+ if(page==='personal') return openPersonalForm();
+ if(page==='archive') return openArchiveForm();
+ openSchoolForm();
+}
+function openSchoolForm(){
+ modal.classList.add('open');hideAllModalForms();entryForm.style.display='grid';
+ modalTitle.textContent='ثبت جدید';
+ entryEditId.value='';entryTitle.value='';entryType.value='task';entryPriority.value='normal';
+ entryDate.value='';entryReminderDays.value='';entryPerson.value='';entryStatus.value='open';entryNotes.value='';
+}
+function openModal(){openSchoolForm()}
+function showForm(type){openSchoolForm();entryType.value=type||'task'}
+
+/* Archive supports image + PDF */
+async function archiveFilePayload(file){
+ if(file.type==='application/pdf'){
+   return {fileData:await fileToDataURL(file),fileType:'pdf',fileName:file.name};
+ }
+ if(file.type.startsWith('image/')){
+   return {fileData:await compressImage(file),fileType:'image',fileName:file.name};
+ }
+ throw new Error('unsupported');
+}
+function previewArchiveFile(){
+ const f=archiveFile.files?.[0], box=document.getElementById('archivePreview'), info=document.getElementById('archiveFileInfo');
+ box.innerHTML='';
+ if(!f){info.textContent='هنوز فایلی انتخاب نشده است.';return}
+ info.textContent='فایل انتخاب‌شده: '+f.name;
+ if(f.type.startsWith('image/')){
+   const u=URL.createObjectURL(f);box.innerHTML=`<img src="${u}" alt="پیش‌نمایش">`;
+ }else if(f.type==='application/pdf') box.innerHTML='<div class="pdf-preview">📄 فایل PDF آماده ثبت است</div>';
+}
+async function saveArchiveDoc(e){
+ e.preventDefault();
+ const id=archiveEditId.value||('a'+Date.now());
+ const old=archiveEditId.value?await archiveGet(id):null;
+ let fileData=old?.fileData||old?.imageData||'', fileType=old?.fileType||(old?.imageData?'image':''), fileName=old?.fileName||'';
+ const file=archiveFile.files?.[0];
+ if(file){const x=await archiveFilePayload(file);fileData=x.fileData;fileType=x.fileType;fileName=x.fileName}
+ if(!fileData){alert('لطفاً عکس یا PDF مدرک را انتخاب کن.');return}
+ const doc={id,title:archiveTitle.value.trim(),type:archiveType.value,date:archiveDate.value,notes:archiveNotes.value.trim(),
+ fileData,fileType,fileName,createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+ await archivePut(doc);if(!db.archiveMeta.some(x=>x.id===id))db.archiveMeta.push({id,createdAt:doc.createdAt});
+ save();closeModal();renderArchive();
+}
+function openArchiveForm(id=''){
+ modal.classList.add('open');hideAllModalForms();archiveForm.style.display='grid';
+ modalTitle.textContent=id?'ویرایش مدرک':'افزودن مدرک';archiveEditId.value=id;archiveTitle.value='';archiveType.value='بخشنامه';
+ archiveDate.value=isoToday();archiveNotes.value='';archiveFile.value='';archiveFileInfo.textContent=id?'برای حفظ فایل قبلی لازم نیست دوباره انتخابش کنی.':'هنوز فایلی انتخاب نشده است.';archivePreview.innerHTML='';
+ if(id)archiveGet(id).then(d=>{if(!d)return;archiveTitle.value=d.title||'';archiveType.value=d.type||'سایر';archiveDate.value=d.date||'';archiveNotes.value=d.notes||''});
+}
+async function renderArchive(){
+ const el=document.getElementById('archiveList');if(!el)return;
+ const docs=await archiveGetAll(),q=(archiveSearch?.value||'').trim().toLowerCase();
+ const rows=docs.filter(d=>!q||[d.title,d.type,d.notes,d.date].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||b.createdAt||'').localeCompare(a.date||a.createdAt||''));
+ el.innerHTML=rows.length?rows.map(d=>{const ft=d.fileType||(d.imageData?'image':'pdf'),data=d.fileData||d.imageData||'';
+ const thumb=ft==='image'?`<img class="doc-thumb" src="${data}" onclick="viewArchiveFile('${d.id}')">`:`<div class="doc-thumb pdf-preview" onclick="viewArchiveFile('${d.id}')">📄<br>PDF</div>`;
+ return `<div class="doc-card">${thumb}<div class="doc-body"><div class="title">${esc(d.title)}</div><div class="meta">${esc(d.type||'')} ${d.date?'• '+d.date:''}</div><div class="actions"><button class="mini" onclick="viewArchiveFile('${d.id}')">👁 مشاهده</button><button class="mini" onclick="openArchiveForm('${d.id}')">✏️ ویرایش</button><button class="mini" onclick="deleteArchiveDoc('${d.id}')">🗑 حذف</button></div></div></div>`}).join(''):'<div class="empty" style="grid-column:1/-1">هنوز مدرکی بایگانی نشده است.</div>';
+}
+async function viewArchiveFile(id){
+ const d=await archiveGet(id);if(!d)return;const data=d.fileData||d.imageData,ft=d.fileType||(d.imageData?'image':'pdf');
+ if(ft==='pdf'){const a=document.createElement('a');a.href=data;a.target='_blank';a.rel='noopener';a.click();return}
+ const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"></body>`);
+}
+function viewArchiveImage(id){viewArchiveFile(id)}
+
+/* Personal: one simple form, no school types */
+function openPersonalForm(id=''){
+ modal.classList.add('open');hideAllModalForms();personalForm.style.display='grid';
+ modalTitle.textContent=id?'ویرایش کار شخصی':'ثبت کار شخصی';personalEditId.value=id;personalTitle.value='';personalDate.value='';personalReminderDays.value='';personalNotes.value='';
+ if(id){const x=db.personalItems.find(a=>a.id===id);if(x){personalTitle.value=x.title||'';personalDate.value=x.date||'';personalReminderDays.value=x.reminderDays??'';personalNotes.value=x.notes||''}}
+}
+function savePersonal(e){
+ e.preventDefault();const id=personalEditId.value||('p'+Date.now()),old=db.personalItems.find(x=>x.id===id);
+ const item={id,title:personalTitle.value.trim(),date:personalDate.value,reminderDays:personalReminderDays.value===''?null:Number(personalReminderDays.value),
+ notes:personalNotes.value.trim(),status:old?.status||'open',createdAt:old?.createdAt||new Date().toISOString(),completedAt:old?.completedAt||null};
+ const ix=db.personalItems.findIndex(x=>x.id===id);if(ix>=0)db.personalItems[ix]=item;else db.personalItems.push(item);
+ save();closeModal();renderPersonal();
+}
+
 </script>
 </body></html>
