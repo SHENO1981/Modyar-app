@@ -1,11 +1,11 @@
 {
-  "name": "مدیار - مدیریت شخصی معاون فنی هنرستان",
+  "name": "مدیار - مدرسه و فضای شخصی",
   "short_name": "مدیار",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f3f6fa",
-  "theme_color": "#173b68",
+  "background_color": "#0b1119",
+  "theme_color": "#0c1624",
   "lang": "fa",
   "dir": "rtl"
 }
