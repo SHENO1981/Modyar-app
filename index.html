@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#173b68">
 <link rel="manifest" href="manifest.json">
-<title>معاون فنی هنرستان</title>
+<title>مدیار</title>
 <style>
 :root{--nav:#173b68;--blue:#2675e8;--bg:#f3f6fa;--card:#fff;--muted:#6b7788;--red:#d83a35;--amber:#b97700;--green:#18864b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:#172033}
@@ -16,31 +16,33 @@
 .section{padding:0 12px 14px}.section h2{font-size:17px;margin:15px 3px 10px}.card{background:#fff;border-radius:16px;padding:12px;margin:8px 0;box-shadow:0 2px 12px #1836530d}
 .task{display:flex;align-items:flex-start;gap:10px}.task input[type=checkbox]{width:20px;height:20px;margin-top:2px}.grow{flex:1}.title{font-weight:700;font-size:14px}.meta{font-size:11px;color:var(--muted);margin-top:5px}.badge{font-size:11px;border-radius:20px;padding:5px 8px;background:#eef2f7}.urgent{background:#ffe8e7;color:var(--red)}.important{background:#fff0c8;color:var(--amber)}.waiting{background:#eaf1ff;color:#2b62ba}.done{opacity:.55;text-decoration:line-through}
 .fab{position:fixed;bottom:88px;left:18px;width:58px;height:58px;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;box-shadow:0 7px 22px #1f66c955;cursor:pointer;z-index:6}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(760px,100%);height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e4e8ee;display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
-.nav button{border:0;background:none;font:inherit;font-size:11px;color:#596575;cursor:pointer}.nav button span{display:block;font-size:21px;margin-bottom:3px}.nav .active{color:var(--blue);font-weight:bold}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(760px,100%);height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e4e8ee;display:grid;grid-template-columns:repeat(6,1fr);z-index:5}
+.nav button{border:0;background:none;font:inherit;font-size:10px;color:#596575;cursor:pointer}.nav button span{display:block;font-size:20px;margin-bottom:3px}.nav .active{color:var(--blue);font-weight:bold}
 .page{display:none}.page.active{display:block}.toolbar{display:flex;gap:8px;padding:12px}.toolbar input,.toolbar select,.form input,.form select,.form textarea{width:100%;border:1px solid #dce2ea;border-radius:11px;padding:11px;background:#fff;font:inherit}
-.empty{text-align:center;color:#8994a2;padding:35px 10px}.workshop{display:flex;justify-content:space-between;align-items:center}.green{color:var(--green)}
+.empty{text-align:center;color:#8994a2;padding:35px 10px}.workshop,.teacher-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.green{color:var(--green)}
 .modal{display:none;position:fixed;inset:0;background:#0d1b2a77;z-index:20;align-items:flex-end;justify-content:center}.modal.open{display:flex}
 .sheet{width:min(760px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}.sheethead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#eef2f7;border-radius:50%;width:36px;height:36px;font-size:20px}
 .types{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:15px 0}.types button{border:1px solid #e1e6ee;background:#f9fbfd;border-radius:14px;padding:17px 8px;font:inherit;cursor:pointer}
-.form{display:grid;gap:10px}.primary{border:0;border-radius:12px;padding:13px;background:var(--blue);color:#fff;font:inherit;font-weight:bold}.secondary{border:0;border-radius:12px;padding:11px;background:#edf2f7;font:inherit}.danger{background:#ffe9e7;color:#b52620}
+.form{display:grid;gap:10px}.primary{border:0;border-radius:12px;padding:13px;background:var(--blue);color:#fff;font:inherit;font-weight:bold}.secondary{border:0;border-radius:12px;padding:11px;background:#edf2f7;font:inherit}
 .small{font-size:11px;color:#6b7788}.backup-grid{display:grid;gap:10px}.backup-grid button,.backup-grid label{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;border:0;font:inherit;cursor:pointer}
 .notice{background:#eef6ff;border:1px solid #d5e7ff;border-radius:14px;padding:12px;font-size:12px;line-height:1.8;color:#24486f}
-@media(max-width:460px){.summary{grid-template-columns:repeat(4,1fr)}.stat{font-size:10px}.stat b{font-size:19px}}
+.teacher-card{cursor:pointer}.teacher-detail{display:none}.teacher-detail.active{display:block}
+@media(max-width:460px){.summary{grid-template-columns:repeat(4,1fr)}.stat{font-size:10px}.stat b{font-size:19px}.nav button{font-size:9px}}
 </style>
 </head>
 <body>
 <div class="app">
 <section id="today" class="page active">
- <div class="top"><h1>سلام 👋</h1><p id="todayDate"></p><p style="margin-top:8px">امروز را منظم و بدون فراموشی پیش ببر.</p></div>
+ <div class="top"><h1>مدیار</h1><p id="todayDate"></p><p style="margin-top:8px">امروز را منظم و بدون فراموشی پیش ببر.</p></div>
  <div class="summary">
   <div class="stat"><b id="urgentCount" style="color:#d83a35">0</b>فوری</div>
   <div class="stat"><b id="lateCount" style="color:#b97700">0</b>عقب‌افتاده</div>
   <div class="stat"><b id="followCount" style="color:#2675e8">0</b>پیگیری</div>
-  <div class="stat"><b id="eventCount" style="color:#18864b">0</b>رویداد امروز</div>
+  <div class="stat"><b id="teacherDueCount" style="color:#18864b">0</b>تحویل هنرآموز</div>
  </div>
  <div class="section"><h2>کارهای امروز</h2><div id="todayTasks"></div></div>
  <div class="section"><h2>منتظر دیگران</h2><div id="waitingList"></div></div>
+ <div class="section"><h2>تحویل‌های هنرآموزان</h2><div id="todayTeacherDues"></div></div>
 </section>
 
 <section id="tasks" class="page">
@@ -59,16 +61,30 @@
  <div class="section"><div id="workshopsList"></div><button class="secondary" style="width:100%;margin-top:10px" onclick="addWorkshop()">+ افزودن کارگاه</button></div>
 </section>
 
+<section id="teachers" class="page">
+ <div class="top"><h1>هنرآموزان</h1><p>مدیریت پرونده و تحویل‌های هر هنرآموز</p></div>
+ <div id="teachersMain">
+   <div class="section"><button class="primary" style="width:100%;margin-top:12px" onclick="openTeacherForm()">+ افزودن هنرآموز</button></div>
+   <div class="section"><h2>لیست هنرآموزان</h2><div id="teachersList"></div></div>
+   <div class="section"><h2>همه تحویل‌های باز</h2><div id="allTeacherDues"></div></div>
+ </div>
+ <div id="teacherDetail" class="teacher-detail">
+   <div class="section" style="padding-top:12px"><button class="secondary" onclick="closeTeacherDetail()">← بازگشت به لیست</button></div>
+   <div class="section"><div class="card"><div class="title" id="teacherName"></div><div class="meta" id="teacherInfo"></div></div></div>
+   <div class="section"><button class="primary" style="width:100%" onclick="openTeacherDueForm()">+ افزودن کار / تحویل برای این هنرآموز</button></div>
+   <div class="section"><h2>امور این هنرآموز</h2><div id="teacherDuesList"></div></div>
+ </div>
+</section>
+
 <section id="followups" class="page">
- <div class="top"><h1>پیگیری‌ها</h1><p>هنرجویان، همکاران و موارد نیازمند مراجعه مجدد</p></div>
+ <div class="top"><h1>پیگیری‌ها</h1><p>موارد نیازمند مراجعه مجدد و پشتیبان‌گیری</p></div>
  <div class="section" id="followupsList"></div>
  <div class="section">
    <h2>پشتیبان‌گیری</h2>
-   <div class="notice">اطلاعات به‌صورت خودکار روی همین گوشی/مرورگر ذخیره می‌شود. برای امنیت بیشتر، هر چند وقت یک‌بار فایل پشتیبان بگیر و در Files، Google Drive یا iCloud نگه دار.</div>
+   <div class="notice">اطلاعات به‌صورت خودکار روی همین گوشی ذخیره می‌شود. برای امنیت بیشتر، فایل پشتیبان را در Google Drive یا فضای امن دیگری نگه دار.</div>
    <div class="backup-grid" style="margin-top:10px">
      <button class="primary" onclick="exportBackup()">دریافت فایل پشتیبان</button>
      <label class="secondary">بازیابی از فایل پشتیبان<input id="restoreFile" type="file" accept=".json,application/json" hidden onchange="restoreBackup(event)"></label>
-     <button class="secondary danger" onclick="clearAll()">پاک کردن همه اطلاعات</button>
    </div>
    <div id="backupStatus" class="small" style="margin-top:10px"></div>
  </div>
@@ -80,6 +96,7 @@
 <button data-page="tasks"><span>☑</span>کارها</button>
 <button data-page="calendar"><span>▣</span>تقویم</button>
 <button data-page="workshops"><span>🛠</span>کارگاه‌ها</button>
+<button data-page="teachers"><span>👨‍🏫</span>هنرآموزان</button>
 <button data-page="followups"><span>↻</span>پیگیری‌ها</button>
 </nav>
 </div>
@@ -94,6 +111,7 @@
   <button onclick="showForm('circular')">📄<br>بخشنامه</button>
   <button onclick="showForm('note')">📝<br>یادداشت سریع</button>
  </div>
+
  <form class="form" id="entryForm" style="display:none" onsubmit="saveEntry(event)">
   <input type="hidden" id="entryType">
   <input id="entryTitle" required placeholder="عنوان">
@@ -104,16 +122,47 @@
   <textarea id="entryNotes" rows="3" placeholder="توضیحات"></textarea>
   <button class="primary" type="submit">ذخیره</button>
  </form>
+
+ <form class="form" id="teacherForm" style="display:none" onsubmit="saveTeacher(event)">
+   <input id="teacherFullName" required placeholder="نام و نام خانوادگی هنرآموز">
+   <input id="teacherField" placeholder="رشته / گروه آموزشی">
+   <input id="teacherPhone" placeholder="شماره تماس">
+   <textarea id="teacherNotes" rows="3" placeholder="توضیحات"></textarea>
+   <button class="primary" type="submit">ذخیره هنرآموز</button>
+ </form>
+
+ <form class="form" id="teacherDueForm" style="display:none" onsubmit="saveTeacherDue(event)">
+   <input id="dueTitle" required placeholder="مثلاً تحویل گزارش ماهانه">
+   <input id="dueDate" type="date">
+   <select id="dueRepeat">
+     <option value="none">بدون تکرار</option>
+     <option value="daily">روزانه</option>
+     <option value="weekly">هفتگی</option>
+     <option value="monthly">ماهانه</option>
+   </select>
+   <select id="dueStatus">
+     <option value="waiting">منتظر تحویل</option>
+     <option value="done">تحویل شد</option>
+     <option value="incomplete">ناقص</option>
+   </select>
+   <textarea id="dueNotes" rows="3" placeholder="توضیحات / نحوه تحویل"></textarea>
+   <button class="primary" type="submit">ذخیره</button>
+ </form>
 </div></div>
 
 <script>
 const KEY='honarestan_assistant_v2_mobile';
-const defaultDB=()=>({version:2,lastBackup:null,items:[],workshops:[
+const defaultDB=()=>({version:3,lastBackup:null,items:[],workshops:[
 {name:'کارگاه برق',field:'برق',status:'فعال'},
 {name:'کارگاه مکانیک',field:'مکانیک',status:'فعال'},
-{name:'کارگاه کامپیوتر',field:'کامپیوتر',status:'فعال'}]});
+{name:'کارگاه کامپیوتر',field:'کامپیوتر',status:'فعال'}],teachers:[],teacherDues:[]});
+
 let db;
 try{db=JSON.parse(localStorage.getItem(KEY))||defaultDB()}catch(e){db=defaultDB()}
+if(!Array.isArray(db.teachers)) db.teachers=[];
+if(!Array.isArray(db.teacherDues)) db.teacherDues=[];
+db.version=3;
+
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(db)); updateBackupStatus();}
 const isoToday=()=>new Date().toISOString().slice(0,10);
 function faDate(d=new Date()){return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(d)}
@@ -126,6 +175,7 @@ document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
 document.getElementById('taskFilter').onchange=render;
 
 function labelType(t){return {task:'کار',follow:'پیگیری',event:'رویداد',issue:'خرابی',circular:'بخشنامه',note:'یادداشت'}[t]||t}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function badge(i){if(i.priority==='urgent')return '<span class="badge urgent">فوری</span>';if(i.priority==='important')return '<span class="badge important">مهم</span>';if(i.status==='waiting')return '<span class="badge waiting">منتظر دیگران</span>';return '<span class="badge">'+labelType(i.type)+'</span>'}
 function itemHTML(i){
  return `<div class="card task ${i.status==='done'?'done':''}">
@@ -133,29 +183,103 @@ function itemHTML(i){
  <div class="grow"><div class="title">${esc(i.title)}</div><div class="meta">${labelType(i.type)}${i.person?' • '+esc(i.person):''}${i.date?' • '+i.date:''}</div>${i.notes?'<div class="small" style="margin-top:6px">'+esc(i.notes)+'</div>':''}</div>${badge(i)}
  </div>`;
 }
-function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function repeatLabel(r){return {daily:'روزانه',weekly:'هفتگی',monthly:'ماهانه',none:'بدون تکرار'}[r]||r}
+function dueStatusLabel(d){
+  const today=isoToday();
+  if(d.status==='done') return '<span class="badge" style="background:#e8f6ee;color:#18864b">تحویل شد</span>';
+  if(d.status==='incomplete') return '<span class="badge important">ناقص</span>';
+  if(d.date && d.date<today) return '<span class="badge urgent">عقب‌افتاده</span>';
+  return '<span class="badge waiting">منتظر تحویل</span>';
+}
+function dueHTML(d){
+  const t=db.teachers.find(x=>x.id===d.teacherId);
+  return `<div class="card task ${d.status==='done'?'done':''}">
+    <input type="checkbox" ${d.status==='done'?'checked':''} onchange="toggleDue('${d.id}',this.checked)">
+    <div class="grow"><div class="title">${esc(d.title)}</div><div class="meta">${t?esc(t.name)+' • ':''}${d.date||'بدون تاریخ'}${d.repeat&&d.repeat!=='none'?' • تکرار: '+repeatLabel(d.repeat):''}</div>${d.notes?'<div class="small" style="margin-top:6px">'+esc(d.notes)+'</div>':''}</div>${dueStatusLabel(d)}
+  </div>`;
+}
+
+let currentTeacherId=null;
+
 function render(){
  let today=isoToday(), open=db.items.filter(i=>i.status!=='done');
  urgentCount.textContent=open.filter(i=>i.priority==='urgent').length;
- lateCount.textContent=open.filter(i=>i.date&&i.date<today).length;
+ lateCount.textContent=open.filter(i=>i.date&&i.date<today).length + db.teacherDues.filter(d=>d.status!=='done'&&d.date&&d.date<today).length;
  followCount.textContent=open.filter(i=>i.type==='follow').length;
- eventCount.textContent=open.filter(i=>i.type==='event'&&i.date===today).length;
+ teacherDueCount.textContent=db.teacherDues.filter(d=>d.status!=='done'&&d.date===today).length;
+
  let todays=open.filter(i=>i.date===today||(!i.date&&i.type==='task'));
  todayTasks.innerHTML=todays.length?todays.map(itemHTML).join(''):'<div class="empty">برای امروز کاری ثبت نشده است.</div>';
- let waits=open.filter(i=>i.status==='waiting'); waitingList.innerHTML=waits.length?waits.map(itemHTML).join(''):'<div class="empty">موردی در انتظار دیگران نیست.</div>';
+
+ let waits=open.filter(i=>i.status==='waiting');
+ waitingList.innerHTML=waits.length?waits.map(itemHTML).join(''):'<div class="empty">موردی در انتظار دیگران نیست.</div>';
+
+ let tdues=db.teacherDues.filter(d=>d.status!=='done' && (d.date===today || (d.date&&d.date<today)));
+ todayTeacherDues.innerHTML=tdues.length?tdues.map(dueHTML).join(''):'<div class="empty">تحویل سررسیدشده‌ای از هنرآموزان نداری.</div>';
+
  let tasks=db.items.filter(i=>['task','circular','note','issue'].includes(i.type));
  let f=taskFilter.value;if(f==='open')tasks=tasks.filter(i=>i.status!=='done');if(f==='waiting')tasks=tasks.filter(i=>i.status==='waiting');if(f==='done')tasks=tasks.filter(i=>i.status==='done');
  allTasks.innerHTML=tasks.length?tasks.slice().reverse().map(itemHTML).join(''):'<div class="empty">هنوز کاری ثبت نشده است.</div>';
- let ev=db.items.filter(i=>i.type==='event').sort((a,b)=>(a.date||'').localeCompare(b.date||''));eventsList.innerHTML=ev.length?ev.map(itemHTML).join(''):'<div class="empty">رویدادی ثبت نشده است.</div>';
- let fu=db.items.filter(i=>i.type==='follow');followupsList.innerHTML=fu.length?fu.slice().reverse().map(itemHTML).join(''):'<div class="empty">پیگیری‌ای ثبت نشده است.</div>';
+
+ let ev=db.items.filter(i=>i.type==='event').sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ eventsList.innerHTML=ev.length?ev.map(itemHTML).join(''):'<div class="empty">رویدادی ثبت نشده است.</div>';
+
+ let fu=db.items.filter(i=>i.type==='follow');
+ followupsList.innerHTML=fu.length?fu.slice().reverse().map(itemHTML).join(''):'<div class="empty">پیگیری‌ای ثبت نشده است.</div>';
+
  workshopsList.innerHTML=db.workshops.map((w,n)=>`<div class="card workshop"><div><div class="title">${esc(w.name)}</div><div class="meta">رشته: ${esc(w.field)}</div></div><div><span class="badge ${w.status==='فعال'?'green':''}">${esc(w.status)}</span> <button onclick="removeWorkshop(${n})" style="border:0;background:none">⋮</button></div></div>`).join('');
+
+ teachersList.innerHTML=db.teachers.length?db.teachers.map(t=>{
+   const openD=db.teacherDues.filter(d=>d.teacherId===t.id && d.status!=='done').length;
+   const doneD=db.teacherDues.filter(d=>d.teacherId===t.id && d.status==='done').length;
+   return `<div class="card teacher-card" onclick="openTeacherDetail('${t.id}')"><div class="teacher-row"><div><div class="title">${esc(t.name)}</div><div class="meta">${esc(t.field||'بدون رشته')} • ${openD} مورد باز • ${doneD} تحویل‌شده</div></div><span>›</span></div></div>`
+ }).join(''):'<div class="empty">هنوز هنرآموزی ثبت نشده است.</div>';
+
+ let openDues=db.teacherDues.filter(d=>d.status!=='done');
+ allTeacherDues.innerHTML=openDues.length?openDues.map(dueHTML).join(''):'<div class="empty">تحویل بازی باقی نمانده است.</div>';
+
+ if(currentTeacherId) renderTeacherDetail();
  updateBackupStatus();
 }
+
+function renderTeacherDetail(){
+ const t=db.teachers.find(x=>x.id===currentTeacherId); if(!t)return;
+ teacherName.textContent=t.name;
+ teacherInfo.textContent=[t.field,t.phone,t.notes].filter(Boolean).join(' • ');
+ const ds=db.teacherDues.filter(d=>d.teacherId===currentTeacherId);
+ teacherDuesList.innerHTML=ds.length?ds.slice().reverse().map(dueHTML).join(''):'<div class="empty">برای این هنرآموز هنوز کاری ثبت نشده است.</div>';
+}
+
 function toggleDone(id,checked){let i=db.items.find(x=>x.id===id);if(i){i.status=checked?'done':'open';save();render()}}
-function openModal(){modal.classList.add('open');types.style.display='grid';entryForm.style.display='none';modalTitle.textContent='ثبت جدید'}
+function toggleDue(id,checked){let d=db.teacherDues.find(x=>x.id===id);if(d){d.status=checked?'done':'waiting';save();render()}}
+
+function openModal(){modal.classList.add('open');types.style.display='grid';entryForm.style.display='none';teacherForm.style.display='none';teacherDueForm.style.display='none';modalTitle.textContent='ثبت جدید'}
 function closeModal(){modal.classList.remove('open')}
-function showForm(t){entryType.value=t;types.style.display='none';entryForm.style.display='grid';modalTitle.textContent='ثبت '+labelType(t);entryDate.value=isoToday(); if(t==='follow')entryStatus.value='open';if(t==='issue')entryPriority.value='important'}
+function showForm(t){entryType.value=t;types.style.display='none';entryForm.style.display='grid';teacherForm.style.display='none';teacherDueForm.style.display='none';modalTitle.textContent='ثبت '+labelType(t);entryDate.value=isoToday(); if(t==='follow')entryStatus.value='open';if(t==='issue')entryPriority.value='important'}
 function saveEntry(e){e.preventDefault();db.items.push({id:Date.now().toString(),type:entryType.value,title:entryTitle.value.trim(),priority:entryPriority.value,date:entryDate.value,person:entryPerson.value.trim(),status:entryStatus.value,notes:entryNotes.value.trim(),createdAt:new Date().toISOString()});save();entryForm.reset();closeModal();render()}
+
+function openTeacherForm(){
+ modal.classList.add('open');types.style.display='none';entryForm.style.display='none';teacherDueForm.style.display='none';teacherForm.style.display='grid';modalTitle.textContent='افزودن هنرآموز';
+}
+function saveTeacher(e){
+ e.preventDefault();
+ db.teachers.push({id:'t'+Date.now(),name:teacherFullName.value.trim(),field:teacherField.value.trim(),phone:teacherPhone.value.trim(),notes:teacherNotes.value.trim()});
+ save();teacherForm.reset();closeModal();render();
+}
+function openTeacherDetail(id){
+ currentTeacherId=id;teachersMain.style.display='none';teacherDetail.classList.add('active');renderTeacherDetail();
+}
+function closeTeacherDetail(){currentTeacherId=null;teacherDetail.classList.remove('active');teachersMain.style.display='block'}
+function openTeacherDueForm(){
+ if(!currentTeacherId)return;
+ modal.classList.add('open');types.style.display='none';entryForm.style.display='none';teacherForm.style.display='none';teacherDueForm.style.display='grid';modalTitle.textContent='افزودن کار / تحویل';dueDate.value=isoToday();
+}
+function saveTeacherDue(e){
+ e.preventDefault();
+ db.teacherDues.push({id:'d'+Date.now(),teacherId:currentTeacherId,title:dueTitle.value.trim(),date:dueDate.value,repeat:dueRepeat.value,status:dueStatus.value,notes:dueNotes.value.trim(),createdAt:new Date().toISOString()});
+ save();teacherDueForm.reset();closeModal();render();
+}
+
 function addWorkshop(){let name=prompt('نام کارگاه:');if(!name)return;let field=prompt('رشته / زمینه کارگاه:')||'';db.workshops.push({name,field,status:'فعال'});save();render()}
 function removeWorkshop(n){if(confirm('این کارگاه حذف شود؟')){db.workshops.splice(n,1);save();render()}}
 
@@ -164,9 +288,7 @@ function exportBackup(){
   const payload={...db,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`honarestan-backup-${stamp}.json`;
-  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download=`modyar-backup-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   db.lastBackup=new Date().toISOString();save();
 }
 function restoreBackup(e){
@@ -177,24 +299,19 @@ function restoreBackup(e){
       const incoming=JSON.parse(r.result);
       if(!incoming || !Array.isArray(incoming.items) || !Array.isArray(incoming.workshops)) throw new Error('invalid');
       if(confirm('اطلاعات فعلی با اطلاعات فایل پشتیبان جایگزین شود؟')){
-        db={version:2,lastBackup:new Date().toISOString(),items:incoming.items,workshops:incoming.workshops};
-        save();render();alert('بازیابی با موفقیت انجام شد.');
+        db={...defaultDB(),...incoming};
+        if(!Array.isArray(db.teachers))db.teachers=[];
+        if(!Array.isArray(db.teacherDues))db.teacherDues=[];
+        db.version=3;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.');
       }
     }catch(err){alert('فایل پشتیبان معتبر نیست.')}
     e.target.value='';
-  };
-  r.readAsText(file,'utf-8');
-}
-function clearAll(){
-  if(confirm('همه اطلاعات این اپ از روی این مرورگر پاک شود؟ این کار قابل بازگشت نیست مگر فایل پشتیبان داشته باشید.')){
-    db=defaultDB();save();render();
-  }
+  };r.readAsText(file,'utf-8');
 }
 function updateBackupStatus(){
   const el=document.getElementById('backupStatus');if(!el)return;
   if(!db.lastBackup){el.textContent='هنوز فایل پشتیبان نگرفته‌ای.';return}
-  const d=new Date(db.lastBackup);
-  el.textContent='آخرین پشتیبان: '+faDate(d)+'، '+d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+  const d=new Date(db.lastBackup);el.textContent='آخرین پشتیبان: '+faDate(d)+'، '+d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
 }
 render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
