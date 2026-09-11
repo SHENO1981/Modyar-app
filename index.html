@@ -26,7 +26,7 @@
 .form{display:grid;gap:10px}.primary{border:0;border-radius:12px;padding:13px;background:var(--blue);color:#fff;font:inherit;font-weight:bold}.secondary{border:0;border-radius:12px;padding:11px;background:#edf2f7;font:inherit}
 .small{font-size:11px;color:#6b7788}.backup-grid{display:grid;gap:10px}.backup-grid button,.backup-grid label{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;border:0;font:inherit;cursor:pointer}
 .notice{background:#eef6ff;border:1px solid #d5e7ff;border-radius:14px;padding:12px;font-size:12px;line-height:1.8;color:#24486f}
-.teacher-card{cursor:pointer}.teacher-detail{display:none}.teacher-detail.active{display:block}
+.teacher-card{cursor:pointer}.teacher-detail{display:none}.teacher-detail.active{display:block}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.mini{border:0;border-radius:10px;padding:8px 10px;background:#edf2f7;font:inherit;font-size:11px}.doneok{background:#e8f6ee;color:#18864b}.soon{background:#fff0c8;color:#a66a00}.overdue{background:#ffe1df;color:#b52620}.todaydue{background:#ffd9d7;color:#a91f1a}
 @media(max-width:460px){.summary{grid-template-columns:repeat(4,1fr)}.stat{font-size:10px}.stat b{font-size:19px}.nav button{font-size:9px}}
 </style>
 </head>
@@ -36,10 +36,11 @@
  <div class="top"><h1>مدیار</h1><p id="todayDate"></p><p style="margin-top:8px">امروز را منظم و بدون فراموشی پیش ببر.</p></div>
  <div class="summary">
   <div class="stat"><b id="urgentCount" style="color:#d83a35">0</b>فوری</div>
-  <div class="stat"><b id="lateCount" style="color:#b97700">0</b>عقب‌افتاده</div>
-  <div class="stat"><b id="followCount" style="color:#2675e8">0</b>پیگیری</div>
-  <div class="stat"><b id="teacherDueCount" style="color:#18864b">0</b>تحویل هنرآموز</div>
+  <div class="stat"><b id="reminderCount" style="color:#b97700">0</b>یادآوری</div>
+  <div class="stat"><b id="lateCount" style="color:#d83a35">0</b>عقب‌افتاده</div>
+  <div class="stat"><b id="doneCount" style="color:#18864b">0</b>انجام‌شده</div>
  </div>
+ <div class="section"><h2>🔔 یادآوری‌ها و ددلاین‌ها</h2><div id="remindersList"></div></div>
  <div class="section"><h2>کارهای امروز</h2><div id="todayTasks"></div></div>
  <div class="section"><h2>منتظر دیگران</h2><div id="waitingList"></div></div>
  <div class="section"><h2>تحویل‌های هنرآموزان</h2><div id="todayTeacherDues"></div></div>
@@ -116,7 +117,10 @@
   <input type="hidden" id="entryType">
   <input id="entryTitle" required placeholder="عنوان">
   <select id="entryPriority"><option value="normal">عادی</option><option value="important">مهم</option><option value="urgent">فوری</option></select>
+  <label class="small">ددلاین</label>
   <input id="entryDate" type="date">
+  <label class="small">یادآوری چند روز قبل از ددلاین؟</label>
+  <input id="entryReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3">
   <input id="entryPerson" placeholder="شخص / مسئول مرتبط">
   <select id="entryStatus"><option value="open">انجام‌نشده</option><option value="progress">در حال انجام</option><option value="waiting">منتظر دیگران</option><option value="done">انجام‌شده</option></select>
   <textarea id="entryNotes" rows="3" placeholder="توضیحات"></textarea>
@@ -133,7 +137,10 @@
 
  <form class="form" id="teacherDueForm" style="display:none" onsubmit="saveTeacherDue(event)">
    <input id="dueTitle" required placeholder="مثلاً تحویل گزارش ماهانه">
+   <label class="small">ددلاین</label>
    <input id="dueDate" type="date">
+   <label class="small">یادآوری چند روز قبل از ددلاین؟</label>
+   <input id="dueReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3">
    <select id="dueRepeat">
      <option value="none">بدون تکرار</option>
      <option value="daily">روزانه</option>
@@ -152,7 +159,7 @@
 
 <script>
 const KEY='honarestan_assistant_v2_mobile';
-const defaultDB=()=>({version:3,lastBackup:null,items:[],workshops:[
+const defaultDB=()=>({version:4,lastBackup:null,items:[],workshops:[
 {name:'کارگاه برق',field:'برق',status:'فعال'},
 {name:'کارگاه مکانیک',field:'مکانیک',status:'فعال'},
 {name:'کارگاه کامپیوتر',field:'کامپیوتر',status:'فعال'}],teachers:[],teacherDues:[]});
@@ -161,10 +168,31 @@ let db;
 try{db=JSON.parse(localStorage.getItem(KEY))||defaultDB()}catch(e){db=defaultDB()}
 if(!Array.isArray(db.teachers)) db.teachers=[];
 if(!Array.isArray(db.teacherDues)) db.teacherDues=[];
-db.version=3;
+db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});
+db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});
+db.version=4;
 
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(db)); updateBackupStatus();}
-const isoToday=()=>new Date().toISOString().slice(0,10);
+function isoToday(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function parseISO(s){if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function daysUntil(s){const a=parseISO(isoToday()),b=parseISO(s);return Math.round((b-a)/86400000)}
+function deadlineState(date,status,reminderDays){
+ if(status==='done')return {k:'done',t:'✓ انجام شد'};
+ if(!date)return {k:'none',t:''};
+ const n=daysUntil(date);
+ if(n<0)return {k:'overdue',t:`⚠️ ${Math.abs(n)} روز عقب‌افتاده`};
+ if(n===0)return {k:'today',t:'🔴 امروز آخرین مهلت'};
+ const r=reminderDays===null||reminderDays===''?null:Number(reminderDays);
+ if(r!==null&&n<=r)return {k:'soon',t:`🔔 ${n} روز تا ددلاین`};
+ return {k:'future',t:''};
+}
+function deadlineBadge(st){
+ if(st.k==='overdue')return `<span class="badge overdue">${st.t}</span>`;
+ if(st.k==='today')return `<span class="badge todaydue">${st.t}</span>`;
+ if(st.k==='soon')return `<span class="badge soon">${st.t}</span>`;
+ if(st.k==='done')return `<span class="badge doneok">${st.t}</span>`;
+ return '';
+}
 function faDate(d=new Date()){return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(d)}
 document.getElementById('todayDate').textContent=faDate();
 
@@ -178,12 +206,11 @@ function labelType(t){return {task:'کار',follow:'پیگیری',event:'روی�
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function badge(i){if(i.priority==='urgent')return '<span class="badge urgent">فوری</span>';if(i.priority==='important')return '<span class="badge important">مهم</span>';if(i.status==='waiting')return '<span class="badge waiting">منتظر دیگران</span>';return '<span class="badge">'+labelType(i.type)+'</span>'}
 function itemHTML(i){
+ const st=deadlineState(i.date,i.status,i.reminderDays);
  return `<div class="card task ${i.status==='done'?'done':''}">
- <input type="checkbox" ${i.status==='done'?'checked':''} onchange="toggleDone('${i.id}',this.checked)">
- <div class="grow"><div class="title">${esc(i.title)}</div><div class="meta">${labelType(i.type)}${i.person?' • '+esc(i.person):''}${i.date?' • '+i.date:''}</div>${i.notes?'<div class="small" style="margin-top:6px">'+esc(i.notes)+'</div>':''}</div>${badge(i)}
+ <div class="grow"><div class="title">${esc(i.title)}</div><div class="meta">${labelType(i.type)}${i.person?' • '+esc(i.person):''}${i.date?' • ددلاین: '+i.date:''}${i.reminderDays!==null&&i.reminderDays!==''?' • یادآوری '+i.reminderDays+' روز قبل':''}</div>${i.notes?'<div class="small" style="margin-top:6px">'+esc(i.notes)+'</div>':''}${i.completedAt?'<div class="small" style="margin-top:6px;color:#18864b">✓ تاریخ اتمام: '+i.completedAt.slice(0,10)+'</div>':''}<div class="actions">${i.status!=='done'?`<button class="mini doneok" onclick="completeItem('${i.id}')">✓ انجام شد</button>`:`<button class="mini" onclick="reopenItem('${i.id}')">↩ بازگرداندن</button>`}</div></div><div style="display:grid;gap:6px">${deadlineBadge(st)}${badge(i)}</div>
  </div>`;
 }
-function repeatLabel(r){return {daily:'روزانه',weekly:'هفتگی',monthly:'ماهانه',none:'بدون تکرار'}[r]||r}
 function dueStatusLabel(d){
   const today=isoToday();
   if(d.status==='done') return '<span class="badge" style="background:#e8f6ee;color:#18864b">تحویل شد</span>';
@@ -193,20 +220,26 @@ function dueStatusLabel(d){
 }
 function dueHTML(d){
   const t=db.teachers.find(x=>x.id===d.teacherId);
+  const st=deadlineState(d.date,d.status,d.reminderDays);
   return `<div class="card task ${d.status==='done'?'done':''}">
-    <input type="checkbox" ${d.status==='done'?'checked':''} onchange="toggleDue('${d.id}',this.checked)">
-    <div class="grow"><div class="title">${esc(d.title)}</div><div class="meta">${t?esc(t.name)+' • ':''}${d.date||'بدون تاریخ'}${d.repeat&&d.repeat!=='none'?' • تکرار: '+repeatLabel(d.repeat):''}</div>${d.notes?'<div class="small" style="margin-top:6px">'+esc(d.notes)+'</div>':''}</div>${dueStatusLabel(d)}
+    <div class="grow"><div class="title">${esc(d.title)}</div><div class="meta">${t?esc(t.name)+' • ':''}${d.date?'ددلاین: '+d.date:'بدون تاریخ'}${d.reminderDays!==null&&d.reminderDays!==''?' • یادآوری '+d.reminderDays+' روز قبل':''}${d.repeat&&d.repeat!=='none'?' • تکرار: '+repeatLabel(d.repeat):''}</div>${d.notes?'<div class="small" style="margin-top:6px">'+esc(d.notes)+'</div>':''}${d.completedAt?'<div class="small" style="margin-top:6px;color:#18864b">✓ تاریخ تحویل: '+d.completedAt.slice(0,10)+'</div>':''}<div class="actions">${d.status!=='done'?`<button class="mini doneok" onclick="completeDue('${d.id}')">✓ تحویل شد</button>`:`<button class="mini" onclick="reopenDue('${d.id}')">↩ بازگرداندن</button>`}</div></div><div style="display:grid;gap:6px">${deadlineBadge(st)}${dueStatusLabel(d)}</div>
   </div>`;
 }
-
 let currentTeacherId=null;
 
 function render(){
  let today=isoToday(), open=db.items.filter(i=>i.status!=='done');
  urgentCount.textContent=open.filter(i=>i.priority==='urgent').length;
- lateCount.textContent=open.filter(i=>i.date&&i.date<today).length + db.teacherDues.filter(d=>d.status!=='done'&&d.date&&d.date<today).length;
- followCount.textContent=open.filter(i=>i.type==='follow').length;
- teacherDueCount.textContent=db.teacherDues.filter(d=>d.status!=='done'&&d.date===today).length;
+ const reminderItems=[];
+ db.items.filter(i=>i.status!=='done'&&i.date).forEach(i=>{const s=deadlineState(i.date,i.status,i.reminderDays);if(['soon','today','overdue'].includes(s.k))reminderItems.push({kind:'item',obj:i,s})});
+ db.teacherDues.filter(d=>d.status!=='done'&&d.date).forEach(d=>{const s=deadlineState(d.date,d.status,d.reminderDays);if(['soon','today','overdue'].includes(s.k))reminderItems.push({kind:'due',obj:d,s})});
+ reminderCount.textContent=reminderItems.filter(x=>x.s.k==='soon'||x.s.k==='today').length;
+ lateCount.textContent=reminderItems.filter(x=>x.s.k==='overdue').length;
+ doneCount.textContent=db.items.filter(i=>i.status==='done').length+db.teacherDues.filter(d=>d.status==='done').length;
+ remindersList.innerHTML=reminderItems.length?reminderItems.map(x=>{
+   const o=x.obj, who=x.kind==='due'?(db.teachers.find(t=>t.id===o.teacherId)?.name||'هنرآموز'):(o.person||labelType(o.type));
+   return `<div class="card"><div class="title">${esc(o.title)}</div><div class="meta">${esc(who)} • ${o.date}</div><div style="margin-top:7px">${deadlineBadge(x.s)}</div></div>`
+ }).join(''):'<div class="empty">فعلاً یادآوری یا ددلاین فوری نداری.</div>';
 
  let todays=open.filter(i=>i.date===today||(!i.date&&i.type==='task'));
  todayTasks.innerHTML=todays.length?todays.map(itemHTML).join(''):'<div class="empty">برای امروز کاری ثبت نشده است.</div>';
@@ -250,13 +283,15 @@ function renderTeacherDetail(){
  teacherDuesList.innerHTML=ds.length?ds.slice().reverse().map(dueHTML).join(''):'<div class="empty">برای این هنرآموز هنوز کاری ثبت نشده است.</div>';
 }
 
-function toggleDone(id,checked){let i=db.items.find(x=>x.id===id);if(i){i.status=checked?'done':'open';save();render()}}
-function toggleDue(id,checked){let d=db.teacherDues.find(x=>x.id===id);if(d){d.status=checked?'done':'waiting';save();render()}}
+function completeItem(id){let i=db.items.find(x=>x.id===id);if(i){i.status='done';i.completedAt=new Date().toISOString();save();render()}}
+function reopenItem(id){let i=db.items.find(x=>x.id===id);if(i){i.status='open';i.completedAt=null;save();render()}}
+function completeDue(id){let d=db.teacherDues.find(x=>x.id===id);if(d){d.status='done';d.completedAt=new Date().toISOString();save();render()}}
+function reopenDue(id){let d=db.teacherDues.find(x=>x.id===id);if(d){d.status='waiting';d.completedAt=null;save();render()}}
 
 function openModal(){modal.classList.add('open');types.style.display='grid';entryForm.style.display='none';teacherForm.style.display='none';teacherDueForm.style.display='none';modalTitle.textContent='ثبت جدید'}
 function closeModal(){modal.classList.remove('open')}
-function showForm(t){entryType.value=t;types.style.display='none';entryForm.style.display='grid';teacherForm.style.display='none';teacherDueForm.style.display='none';modalTitle.textContent='ثبت '+labelType(t);entryDate.value=isoToday(); if(t==='follow')entryStatus.value='open';if(t==='issue')entryPriority.value='important'}
-function saveEntry(e){e.preventDefault();db.items.push({id:Date.now().toString(),type:entryType.value,title:entryTitle.value.trim(),priority:entryPriority.value,date:entryDate.value,person:entryPerson.value.trim(),status:entryStatus.value,notes:entryNotes.value.trim(),createdAt:new Date().toISOString()});save();entryForm.reset();closeModal();render()}
+function showForm(t){entryType.value=t;types.style.display='none';entryForm.style.display='grid';teacherForm.style.display='none';teacherDueForm.style.display='none';modalTitle.textContent='ثبت '+labelType(t);entryDate.value=isoToday();entryReminderDays.value='3'; if(t==='follow')entryStatus.value='open';if(t==='issue')entryPriority.value='important'}
+function saveEntry(e){e.preventDefault();db.items.push({id:Date.now().toString(),type:entryType.value,title:entryTitle.value.trim(),priority:entryPriority.value,date:entryDate.value,reminderDays:entryReminderDays.value===''?null:Number(entryReminderDays.value),person:entryPerson.value.trim(),status:entryStatus.value,notes:entryNotes.value.trim(),createdAt:new Date().toISOString(),completedAt:entryStatus.value==='done'?new Date().toISOString():null});save();entryForm.reset();closeModal();render()}
 
 function openTeacherForm(){
  modal.classList.add('open');types.style.display='none';entryForm.style.display='none';teacherDueForm.style.display='none';teacherForm.style.display='grid';modalTitle.textContent='افزودن هنرآموز';
@@ -272,11 +307,11 @@ function openTeacherDetail(id){
 function closeTeacherDetail(){currentTeacherId=null;teacherDetail.classList.remove('active');teachersMain.style.display='block'}
 function openTeacherDueForm(){
  if(!currentTeacherId)return;
- modal.classList.add('open');types.style.display='none';entryForm.style.display='none';teacherForm.style.display='none';teacherDueForm.style.display='grid';modalTitle.textContent='افزودن کار / تحویل';dueDate.value=isoToday();
+ modal.classList.add('open');types.style.display='none';entryForm.style.display='none';teacherForm.style.display='none';teacherDueForm.style.display='grid';modalTitle.textContent='افزودن کار / تحویل';dueDate.value=isoToday();dueReminderDays.value='3';
 }
 function saveTeacherDue(e){
  e.preventDefault();
- db.teacherDues.push({id:'d'+Date.now(),teacherId:currentTeacherId,title:dueTitle.value.trim(),date:dueDate.value,repeat:dueRepeat.value,status:dueStatus.value,notes:dueNotes.value.trim(),createdAt:new Date().toISOString()});
+ db.teacherDues.push({id:'d'+Date.now(),teacherId:currentTeacherId,title:dueTitle.value.trim(),date:dueDate.value,reminderDays:dueReminderDays.value===''?null:Number(dueReminderDays.value),repeat:dueRepeat.value,status:dueStatus.value,notes:dueNotes.value.trim(),createdAt:new Date().toISOString(),completedAt:dueStatus.value==='done'?new Date().toISOString():null});
  save();teacherDueForm.reset();closeModal();render();
 }
 
@@ -302,7 +337,9 @@ function restoreBackup(e){
         db={...defaultDB(),...incoming};
         if(!Array.isArray(db.teachers))db.teachers=[];
         if(!Array.isArray(db.teacherDues))db.teacherDues=[];
-        db.version=3;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.');
+        db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});
+db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});
+db.version=4;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.');
       }
     }catch(err){alert('فایل پشتیبان معتبر نیست.')}
     e.target.value='';
