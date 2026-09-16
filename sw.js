@@ -1,4 +1,4 @@
-const CACHE_NAME = 'modyar-v11-20260916';
+const CACHE_NAME = 'modyar-v11-fixed-20260916';
 const APP_SHELL = [
   './',
   './index.html',
