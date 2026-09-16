@@ -96,34 +96,37 @@ input[type="date"]{color-scheme:dark}
 .entry-hide{display:none!important}
 
 
-/* ===== V13 dashboard ===== */
-.v13-shortcuts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.v13-shortcuts button{min-height:92px;border:1px solid #344054;background:#18202d;color:#fff;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;font-size:14px}
-.v13-shortcuts button span{font-size:25px}
-.v13-shortcuts button:last-child{grid-column:1/-1}
-.v13-today-item{background:#18202d;border-radius:13px;padding:11px;margin:8px 0}
-.v13-today-item .title{font-weight:800}
-.v13-today-item .small{opacity:.78;margin-top:5px;line-height:1.7}
+/* ===== V13.1 safe dashboard ===== */
+.v131-legacy-card{display:none!important}
+.v131-shortcuts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.v131-shortcuts button{min-height:88px;border:1px solid #344054;background:#18202d;color:#fff;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center}
+.v131-shortcuts button span{font-size:24px}
+.v131-shortcuts button:last-child{grid-column:1/-1}
+.v131-task{background:#18202d;border-radius:13px;padding:11px;margin:8px 0}
+.v131-task .title{font-weight:800}.v131-task .small{opacity:.78;margin-top:5px;line-height:1.7}
 
 </style>
 </head>
 <body><button class="v12-home" id="v12Home" onclick="openPage('today')" title="خانه">⌂</button>
 <div class="app">
 <section id="today" class="page active">
-<div class="top">
-<h1>مدیار</h1>
-<p>دستیار روزانه معاونت فنی</p>
-</div>
+ <div class="top"><h1>مدیار</h1><p id="todayDate"></p><p style="margin-top:8px">امروز را منظم و بدون فراموشی پیش ببر.</p></div>
+ <div class="summary"><div class="v131-legacy-card stat" onclick="showSummary('urgent')"><b id="urgentCount" style="color:#d83a35">0</b>فوری</div><div class="v131-legacy-card stat" onclick="showSummary('reminder')"><b id="reminderCount" style="color:#b97700">0</b>یادآوری</div><div class="v131-legacy-card stat" onclick="showSummary('late')"><b id="lateCount" style="color:#d83a35">0</b>عقب‌افتاده</div><div class="v131-legacy-card stat" onclick="showSummary('done')"><b id="doneCount" style="color:#18864b">0</b>انجام‌شده</div></div>
+<div class="section" id="summaryResults" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center"><h2 id="summaryTitle"></h2><button class="mini" onclick="closeSummary()">× بستن</button></div><div id="summaryList"></div></div>
 
-<div class="section">
+ <div class="section"><h2>🔔 یادآوری‌ها و ددلاین‌ها</h2><div id="remindersList"></div></div>
+ <div class="section"><h2>کارهای امروز</h2><div id="todayTasks"></div></div>
+ <div class="section"><h2>منتظر دیگران</h2><div id="waitingList"></div></div>
+ <div class="section"><h2>تحویل‌های هنرآموزان</h2><div id="todayTeacherDues"></div></div>
+
+<div class="section v131-home">
 <h2>کارهای امروز</h2>
-<div id="v13TodayTasks"></div>
+<div id="v131TodayTasks"></div>
 <button class="primary" style="width:100%;margin-top:10px" onclick="smartAdd()">+ ثبت جدید</button>
 </div>
-
-<div class="section">
+<div class="section v131-home">
 <h2>دسترسی سریع</h2>
-<div class="v13-shortcuts">
+<div class="v131-shortcuts">
 <button onclick="openPage('calendar')"><span>▣</span><b>تقویم</b></button>
 <button onclick="openPage('workshops')"><span>🛠</span><b>کارگاه‌ها</b></button>
 <button onclick="openPage('teachers')"><span>👨‍🏫</span><b>هنرآموزان</b></button>
@@ -337,7 +340,7 @@ async function renderArchive(){
  const rows=docs.filter(d=>!q||[d.title,d.type,d.notes,d.date].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||b.createdAt||'').localeCompare(a.date||a.createdAt||''));
  el.innerHTML=rows.length?rows.map(d=>`<div class="doc-card"><img class="doc-thumb" src="${d.imageData}" onclick="viewArchiveImage('${d.id}')"><div class="doc-body"><div class="title">${esc(d.title)}</div><div class="meta">${esc(d.type||'')} ${d.date?'• '+d.date:''}</div><div class="actions"><button class="mini" onclick="openArchiveForm('${d.id}')">✏️ ویرایش</button><button class="mini" onclick="deleteArchiveDoc('${d.id}')">🗑 حذف</button></div></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1">هنوز مدرکی بایگانی نشده است.</div>';
 }
-async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13</div>
+async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
 </body>`)}
 async function deleteArchiveDoc(id){if(!confirm('این مدرک از بایگانی حذف شود؟'))return;await archiveDelete(id);db.archiveMeta=db.archiveMeta.filter(x=>x.id!==id);save();renderArchive()}
 
@@ -475,7 +478,7 @@ async function renderArchive(){
 async function viewArchiveFile(id){
  const d=await archiveGet(id);if(!d)return;const data=d.fileData||d.imageData,ft=d.fileType||(d.imageData?'image':'pdf');
  if(ft==='pdf'){const a=document.createElement('a');a.href=data;a.target='_blank';a.rel='noopener';a.click();return}
- const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13</div>
+ const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
 </body>`);
 }
 function viewArchiveImage(id){viewArchiveFile(id)}
@@ -499,7 +502,7 @@ function savePersonal(e){
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js?v=13', { updateViaCache: 'none' });
+      const reg = await navigator.serviceWorker.register('./sw.js?v=13-1', { updateViaCache: 'none' });
       await reg.update();
 
       // If a new worker is already waiting, activate it immediately.
@@ -640,21 +643,18 @@ document.getElementById('v12Home').style.display=
  document.getElementById('today')?.classList.contains('active')?'none':'flex';
 
 
-/* ===== V13 home dashboard ===== */
-function renderV13Home(){
- const el=document.getElementById('v13TodayTasks'); if(!el)return;
- const today=isoToday();
- const a=db.items.filter(x=>x.date===today);
+/* ===== V13.1 safe home renderer ===== */
+function renderV131Home(){
+ const el=document.getElementById('v131TodayTasks'); if(!el)return;
+ const a=db.items.filter(x=>x.date===isoToday());
  el.innerHTML=a.length?a.slice().reverse().map(x=>`
-   <div class="v13-today-item" onclick="openEntryForm('${x.id}')">
-     <div class="title">${esc(x.title)}</div>
-     ${x.notes?`<div class="small">${esc(x.notes)}</div>`:''}
-   </div>`).join(''):'<div class="empty">برای امروز کاری ثبت نشده است.</div>';
+ <div class="v131-task" onclick="openEntryForm('${x.id}')">
+   <div class="title">${esc(x.title)}</div>
+   ${x.notes?`<div class="small">${esc(x.notes)}</div>`:''}
+ </div>`).join(''):'<div class="empty">برای امروز کاری ثبت نشده است.</div>';
 }
-const _v13Render=render;
-render=function(){_v13Render();renderV13Home();};
-renderV13Home();
+renderV131Home();
 
 </script>
-<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13</div>
+<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
 </body></html>
