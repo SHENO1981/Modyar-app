@@ -89,9 +89,19 @@ input[type="date"]{color-scheme:dark}
 .perf-positive{border-right:4px solid #54d58a}.perf-negative{border-right:4px solid #ff6b6b}
 #undatedItems .card{margin-bottom:8px}
 
+
+/* ===== V12 ===== */
+.v12-home{
+ position:fixed;top:12px;left:12px;z-index:900;
+ width:42px;height:42px;border-radius:14px;border:1px solid #344054;
+ background:#18202d;color:#fff;font-size:21px;display:none;
+ align-items:center;justify-content:center;box-shadow:0 5px 18px #0005
+}
+body:not(.on-home) .v12-home{display:flex}
+
 </style>
 </head>
-<body>
+<body class="on-home"><button id="v12Home" class="v12-home" onclick="openPage('today')" title="خانه">⌂</button>
 <div class="app">
 <section id="today" class="page active">
  <div class="top"><h1>مدیار</h1><p id="todayDate"></p><p style="margin-top:8px">امروز را منظم و بدون فراموشی پیش ببر.</p></div>
@@ -109,7 +119,7 @@ input[type="date"]{color-scheme:dark}
  <div class="section"><div class="calendar-wrap"><div class="cal-head"><button class="cal-btn" onclick="changeJMonth(-1)">ماه قبل</button><strong id="calTitle"></strong><button class="cal-btn" onclick="changeJMonth(1)">ماه بعد</button></div><div class="weekdays"><div>ش</div><div>ی</div><div>د</div><div>س</div><div>چ</div><div>پ</div><div>ج</div></div><div class="cal-grid" id="calGrid"></div><div class="legend"><span class="lblue">باز</span><span class="lred">عقب‌افتاده</span><span class="lgreen">انجام‌شده</span></div><button class="secondary" style="width:100%;margin-top:10px" onclick="goCalendarToday()">امروز</button></div></div>
  <div class="section"><h2 id="selectedDayTitle">موارد روز انتخاب‌شده</h2><div id="selectedDayItems"></div></div>
 </section>
-<section id="workshops" class="page"><div class="top"><button class="v11-home" onclick="openPage('today')">⌂</button><h1>کارگاه‌ها</h1><p>وضعیت و برنامه هفتگی کارگاه‌ها</p></div><div class="section"><input id="workshopSearch" class="searchbox ws-search" placeholder="جست‌وجو: کارگاه، رشته، مقطع یا هنرآموز..." oninput="renderWorkshopSearch()"><div id="workshopSearchResults"></div><div id="workshopsList"></div><button class="secondary" style="width:100%;margin-top:10px" onclick="openWorkshopForm()">+ افزودن کارگاه</button></div></section>
+<section id="workshops" class="page"><div class="top"><h1>کارگاه‌ها</h1><p>وضعیت و برنامه هفتگی کارگاه‌ها</p></div><div class="section"><input id="workshopSearch" class="searchbox ws-search" placeholder="جست‌وجو: کارگاه، رشته، مقطع یا هنرآموز..." oninput="renderWorkshopSearch()"><div id="workshopSearchResults"></div><div id="workshopsList"></div><button class="secondary" style="width:100%;margin-top:10px" onclick="openWorkshopForm()">+ افزودن کارگاه</button></div></section>
 <section id="teachers" class="page"><div class="top"><h1>هنرآموزان</h1><p>مدیریت پرونده و تحویل‌های هر هنرآموز</p></div><div id="teachersMain"><div class="section"><button class="primary" style="width:100%;margin-top:12px" onclick="openTeacherForm()">+ افزودن هنرآموز</button></div><div class="section"><h2>لیست هنرآموزان</h2><div id="teachersList"></div></div><div class="section"><h2>همه تحویل‌های باز</h2><div id="allTeacherDues"></div></div></div><div id="teacherDetail" class="teacher-detail"><div class="section" style="padding-top:12px"><button class="secondary" onclick="closeTeacherDetail()">← بازگشت به لیست</button></div><div class="section"><div class="card"><div class="title" id="teacherName"></div><div class="meta" id="teacherInfo"></div><div class="actions"><button class="mini edit" onclick="editCurrentTeacher()">✏️ ویرایش هنرآموز</button><button class="mini delete" onclick="deleteCurrentTeacher()">🗑 حذف هنرآموز</button></div></div></div><div class="section"><button class="primary" style="width:100%" onclick="openTeacherDueForm()">+ افزودن کار / تحویل برای این هنرآموز</button></div><div class="section"><h2>امور این هنرآموز</h2><div id="teacherDuesList"></div></div>
 <div class="section"><h2>📋 گزارش عملکرد</h2><div id="performanceSummary"></div><button class="primary" style="width:100%;margin:10px 0" onclick="openPerformanceForm()">+ ثبت گزارش عملکرد</button><div class="perf-filters"><button onclick="setPerformanceFilter('all')">همه</button><button onclick="setPerformanceFilter('positive')">➕ مثبت</button><button onclick="setPerformanceFilter('negative')">➖ منفی</button></div><div id="performanceList"></div></div>
 </div></section>
@@ -139,12 +149,16 @@ input[type="date"]{color-scheme:dark}
 <nav class="nav"><button data-page="calendar"><span>▣</span>تقویم</button><button data-page="workshops"><span>🛠</span>کارگاه‌ها</button><button data-page="teachers"><span>👨‍🏫</span>هنرآموزان</button><button data-page="archive"><span>🗂</span>بایگانی</button><button data-page="personal"><span>🔐</span>شخصی</button></nav>
 </div>
 <div class="modal" id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">ثبت جدید</h2><button class="close" onclick="closeModal()">×</button></div><div class="types" id="types" style="display:none"></div>
-<form class="form" id="entryForm" style="display:none" onsubmit="saveEntry(event)"><input type="hidden" id="entryEditId"><input id="entryTitle" required placeholder="عنوان">
-<label class="small">نوع کار</label>
-<select id="entryType">
-<option value="task">کار</option><option value="follow">پیگیری</option><option value="event">رویداد</option>
-<option value="issue">خرابی / مشکل</option><option value="circular">بخشنامه</option><option value="note">یادداشت</option>
-</select><select id="entryPriority"><option value="normal">عادی</option><option value="important">مهم</option><option value="urgent">فوری</option></select><label class="small">ددلاین / تاریخ</label><input id="entryDate" type="date"><label class="small">یادآوری چند روز قبل از ددلاین؟</label><input id="entryReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3"><input id="entryPerson" placeholder="شخص / مسئول مرتبط"><select id="entryStatus"><option value="open">انجام‌نشده</option><option value="progress">در حال انجام</option><option value="waiting">منتظر دیگران</option><option value="done">انجام‌شده</option></select><textarea id="entryNotes" rows="3" placeholder="توضیحات"></textarea><button class="primary" type="submit">ذخیره</button></form>
+<form class="form" id="entryForm" style="display:none" onsubmit="saveEntryV12(event)">
+<input type="hidden" id="editId">
+<label class="small">عنوان کار</label>
+<input id="title" required placeholder="مثلاً بررسی تجهیزات کارگاه برق">
+<label class="small">تاریخ</label>
+<input id="date" type="date" required>
+<label class="small">توضیحات</label>
+<textarea id="notes" rows="4" placeholder="توضیحات اختیاری"></textarea>
+<button class="primary" type="submit">ذخیره</button>
+</form>
 <form class="form" id="teacherForm" style="display:none" onsubmit="saveTeacher(event)"><input type="hidden" id="teacherEditId"><input id="teacherFullName" required placeholder="نام و نام خانوادگی هنرآموز"><input id="teacherField" placeholder="رشته / گروه آموزشی"><input id="teacherPhone" placeholder="شماره تماس"><textarea id="teacherNotes" rows="3" placeholder="توضیحات"></textarea><button class="primary" type="submit">ذخیره هنرآموز</button></form>
 <form class="form" id="teacherDueForm" style="display:none" onsubmit="saveTeacherDue(event)"><input type="hidden" id="dueEditId"><input id="dueTitle" required placeholder="مثلاً تحویل گزارش ماهانه"><label class="small">ددلاین</label><input id="dueDate" type="date"><label class="small">یادآوری چند روز قبل از ددلاین؟</label><input id="dueReminderDays" type="number" min="0" step="1" placeholder="مثلاً 3"><select id="dueRepeat"><option value="none">بدون تکرار</option><option value="daily">روزانه</option><option value="weekly">هفتگی</option><option value="monthly">ماهانه</option></select><select id="dueStatus"><option value="waiting">منتظر تحویل</option><option value="done">تحویل شد</option><option value="incomplete">ناقص</option></select><textarea id="dueNotes" rows="3" placeholder="توضیحات / نحوه تحویل"></textarea><button class="primary" type="submit">ذخیره</button></form>
 <form class="form" id="workshopForm" style="display:none" onsubmit="saveWorkshop(event)"><input type="hidden" id="workshopEditIndex"><input id="workshopName" required placeholder="نام کارگاه"><input id="workshopField" placeholder="رشته / زمینه"><select id="workshopStatus"><option value="فعال">فعال</option><option value="نیازمند بررسی">نیازمند بررسی</option><option value="غیرفعال">غیرفعال</option></select><button class="primary" type="submit">ذخیره کارگاه</button></form>
@@ -308,7 +322,7 @@ async function renderArchive(){
  const rows=docs.filter(d=>!q||[d.title,d.type,d.notes,d.date].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||b.createdAt||'').localeCompare(a.date||a.createdAt||''));
  el.innerHTML=rows.length?rows.map(d=>`<div class="doc-card"><img class="doc-thumb" src="${d.imageData}" onclick="viewArchiveImage('${d.id}')"><div class="doc-body"><div class="title">${esc(d.title)}</div><div class="meta">${esc(d.type||'')} ${d.date?'• '+d.date:''}</div><div class="actions"><button class="mini" onclick="openArchiveForm('${d.id}')">✏️ ویرایش</button><button class="mini" onclick="deleteArchiveDoc('${d.id}')">🗑 حذف</button></div></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1">هنوز مدرکی بایگانی نشده است.</div>';
 }
-async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
+async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V12</div>
 </body>`)}
 async function deleteArchiveDoc(id){if(!confirm('این مدرک از بایگانی حذف شود؟'))return;await archiveDelete(id);db.archiveMeta=db.archiveMeta.filter(x=>x.id!==id);save();renderArchive()}
 
@@ -374,6 +388,13 @@ function updateBackupStatus(){const el=document.getElementById('backupStatus');i
 const V11_DAYS=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'];
 const V11_PERIODS=[['1','اول'],['2','دوم'],['3','سوم'],['4','چهارم']];
 let performanceFilter='all';
+
+const _v12OpenPage=openPage;
+openPage=function(id){
+ _v12OpenPage(id);
+ document.body.classList.toggle('on-home',id==='today');
+};
+
 save();render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
 /* ===== V9 simplified entry flows ===== */
@@ -446,7 +467,7 @@ async function renderArchive(){
 async function viewArchiveFile(id){
  const d=await archiveGet(id);if(!d)return;const data=d.fileData||d.imageData,ft=d.fileType||(d.imageData?'image':'pdf');
  if(ft==='pdf'){const a=document.createElement('a');a.href=data;a.target='_blank';a.rel='noopener';a.click();return}
- const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
+ const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V12</div>
 </body>`);
 }
 function viewArchiveImage(id){viewArchiveFile(id)}
@@ -470,7 +491,7 @@ function savePersonal(e){
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js?v=11-2', { updateViaCache: 'none' });
+      const reg = await navigator.serviceWorker.register('./sw.js?v=12', { updateViaCache: 'none' });
       await reg.update();
 
       // If a new worker is already waiting, activate it immediately.
@@ -588,6 +609,48 @@ function renderPerformanceV11(){
  list.innerHTML=a.length?a.map(r=>`<div class="card ${r.type==='positive'?'perf-positive':'perf-negative'}"><div class="grow"><div class="title">${r.type==='positive'?'➕ مثبت':'➖ منفی'}</div><div class="meta">${faShort(r.date)}</div><div class="small" style="margin-top:7px">${esc(r.text)}</div><div class="actions"><button class="mini edit" onclick="openPerformanceForm('${r.id}')">✏️ ویرایش</button><button class="mini delete" onclick="deletePerformance('${r.id}')">🗑 حذف</button></div></div></div>`).join(''):'<div class="empty">گزارشی ثبت نشده است.</div>';
 }
 
+
+/* ===== V12 minimal school task form ===== */
+function openEntryFormV12(id=''){
+ const item=id?db.items.find(x=>x.id===id):null;
+ modal.classList.add('open');
+ ['types','teacherForm','teacherDueForm','workshopForm','archiveForm','personalForm','workshopSlotForm','performanceForm'].forEach(k=>{const e=document.getElementById(k);if(e)e.style.display='none'});
+ entryForm.style.display='grid';
+ modalTitle.textContent=item?'ویرایش کار':'ثبت جدید';
+ editId.value=id||'';
+ title.value=item?.title||'';
+ date.value=item?.date||isoToday();
+ notes.value=item?.notes||'';
+}
+function saveEntryV12(e){
+ e.preventDefault();
+ const id=editId.value;
+ const old=id?db.items.find(x=>x.id===id):null;
+ const data={
+   id:id||('i'+Date.now()),
+   type:old?.type||'task',
+   title:title.value.trim(),
+   priority:'normal',
+   date:date.value,
+   person:'',
+   status:old?.status||'open',
+   notes:notes.value.trim(),
+   reminderDays:0,
+   createdAt:old?.createdAt||new Date().toISOString(),
+   completedAt:old?.completedAt||null
+ };
+ if(old)Object.assign(old,data);else db.items.push(data);
+ save();closeModal();render();
+}
+/* All school quick-add paths now go directly to the minimal form. */
+smartAdd=function(){
+ if(currentPage==='personal'){openPersonalForm();return}
+ if(currentPage==='archive'){openArchiveForm();return}
+ openEntryFormV12();
+};
+/* Existing edit buttons call openEntryForm; route them to the new form too. */
+openEntryForm=function(id=''){openEntryFormV12(id)};
+
 </script>
-<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
+<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V12</div>
 </body></html>
