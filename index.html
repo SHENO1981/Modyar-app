@@ -105,6 +105,11 @@ input[type="date"]{color-scheme:dark}
 .v131-task{background:#18202d;border-radius:13px;padding:11px;margin:8px 0}
 .v131-task .title{font-weight:800}.v131-task .small{opacity:.78;margin-top:5px;line-height:1.7}
 
+
+/* ===== V13.2 ===== */
+/* Home now shows only Quick Access. Keep old nodes in DOM for safe legacy rendering. */
+.v132-hide-home-tasks{display:none!important}
+
 </style>
 </head>
 <body><button class="v12-home" id="v12Home" onclick="openPage('today')" title="خانه">⌂</button>
@@ -119,11 +124,7 @@ input[type="date"]{color-scheme:dark}
  <div class="section"><h2>منتظر دیگران</h2><div id="waitingList"></div></div>
  <div class="section"><h2>تحویل‌های هنرآموزان</h2><div id="todayTeacherDues"></div></div>
 
-<div class="section v131-home">
-<h2>کارهای امروز</h2>
-<div id="v131TodayTasks"></div>
-<button class="primary" style="width:100%;margin-top:10px" onclick="smartAdd()">+ ثبت جدید</button>
-</div>
+<div class="section v131-home v132-hide-home-tasks"><h2>کارهای امروز</h2><div id="v131TodayTasks"></div><button class="primary" style="width:100%;margin-top:10px" onclick="smartAdd()">+ ثبت جدید</button></div>
 <div class="section v131-home">
 <h2>دسترسی سریع</h2>
 <div class="v131-shortcuts">
@@ -340,7 +341,7 @@ async function renderArchive(){
  const rows=docs.filter(d=>!q||[d.title,d.type,d.notes,d.date].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||b.createdAt||'').localeCompare(a.date||a.createdAt||''));
  el.innerHTML=rows.length?rows.map(d=>`<div class="doc-card"><img class="doc-thumb" src="${d.imageData}" onclick="viewArchiveImage('${d.id}')"><div class="doc-body"><div class="title">${esc(d.title)}</div><div class="meta">${esc(d.type||'')} ${d.date?'• '+d.date:''}</div><div class="actions"><button class="mini" onclick="openArchiveForm('${d.id}')">✏️ ویرایش</button><button class="mini" onclick="deleteArchiveDoc('${d.id}')">🗑 حذف</button></div></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1">هنوز مدرکی بایگانی نشده است.</div>';
 }
-async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
+async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.2</div>
 </body>`)}
 async function deleteArchiveDoc(id){if(!confirm('این مدرک از بایگانی حذف شود؟'))return;await archiveDelete(id);db.archiveMeta=db.archiveMeta.filter(x=>x.id!==id);save();renderArchive()}
 
@@ -478,7 +479,7 @@ async function renderArchive(){
 async function viewArchiveFile(id){
  const d=await archiveGet(id);if(!d)return;const data=d.fileData||d.imageData,ft=d.fileType||(d.imageData?'image':'pdf');
  if(ft==='pdf'){const a=document.createElement('a');a.href=data;a.target='_blank';a.rel='noopener';a.click();return}
- const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
+ const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.2</div>
 </body>`);
 }
 function viewArchiveImage(id){viewArchiveFile(id)}
@@ -502,7 +503,7 @@ function savePersonal(e){
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js?v=13-1', { updateViaCache: 'none' });
+      const reg = await navigator.serviceWorker.register('./sw.js?v=13-2', { updateViaCache: 'none' });
       await reg.update();
 
       // If a new worker is already waiting, activate it immediately.
@@ -656,5 +657,5 @@ function renderV131Home(){
 renderV131Home();
 
 </script>
-<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.1</div>
+<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V13.2</div>
 </body></html>
