@@ -308,7 +308,7 @@ async function renderArchive(){
  const rows=docs.filter(d=>!q||[d.title,d.type,d.notes,d.date].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||b.createdAt||'').localeCompare(a.date||a.createdAt||''));
  el.innerHTML=rows.length?rows.map(d=>`<div class="doc-card"><img class="doc-thumb" src="${d.imageData}" onclick="viewArchiveImage('${d.id}')"><div class="doc-body"><div class="title">${esc(d.title)}</div><div class="meta">${esc(d.type||'')} ${d.date?'• '+d.date:''}</div><div class="actions"><button class="mini" onclick="openArchiveForm('${d.id}')">✏️ ویرایش</button><button class="mini" onclick="deleteArchiveDoc('${d.id}')">🗑 حذف</button></div></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1">هنوز مدرکی بایگانی نشده است.</div>';
 }
-async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.1</div>
+async function viewArchiveImage(id){const d=await archiveGet(id);if(!d)return;const w=window.open();w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${d.imageData}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
 </body>`)}
 async function deleteArchiveDoc(id){if(!confirm('این مدرک از بایگانی حذف شود؟'))return;await archiveDelete(id);db.archiveMeta=db.archiveMeta.filter(x=>x.id!==id);save();renderArchive()}
 
@@ -371,6 +371,9 @@ function changeJMonth(n){calJ.jm+=n;if(calJ.jm<1){calJ.jm=12;calJ.jy--}if(calJ.j
 function exportBackup(){const stamp=new Date().toISOString().replace(/[:.]/g,'-'),payload={...db,exportedAt:new Date().toISOString()},blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`modyar-backup-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);db.lastBackup=new Date().toISOString();save()}
 function restoreBackup(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const incoming=JSON.parse(r.result);if(!incoming||!Array.isArray(incoming.items)||!Array.isArray(incoming.workshops))throw new Error('invalid');if(confirm('اطلاعات فعلی با اطلاعات فایل پشتیبان جایگزین شود؟')){db={...defaultDB(),...incoming};if(!Array.isArray(db.teachers))db.teachers=[];if(!Array.isArray(db.teacherDues))db.teacherDues=[];db.items.forEach(i=>{if(i.reminderDays===undefined)i.reminderDays=null;if(i.completedAt===undefined)i.completedAt=null});db.teacherDues.forEach(d=>{if(d.reminderDays===undefined)d.reminderDays=null;if(d.completedAt===undefined)d.completedAt=null});db.version=10;db.lastBackup=new Date().toISOString();save();render();alert('بازیابی با موفقیت انجام شد.')}}catch(err){alert('فایل پشتیبان معتبر نیست.')}e.target.value=''};r.readAsText(file,'utf-8')}
 function updateBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;if(!db.lastBackup){el.textContent='هنوز فایل پشتیبان نگرفته‌ای.';return}const d=new Date(db.lastBackup);el.textContent='آخرین پشتیبان: '+faDate(d)+'، '+d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}
+const V11_DAYS=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'];
+const V11_PERIODS=[['1','اول'],['2','دوم'],['3','سوم'],['4','چهارم']];
+let performanceFilter='all';
 save();render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
 /* ===== V9 simplified entry flows ===== */
@@ -443,7 +446,7 @@ async function renderArchive(){
 async function viewArchiveFile(id){
  const d=await archiveGet(id);if(!d)return;const data=d.fileData||d.imageData,ft=d.fileType||(d.imageData?'image':'pdf');
  if(ft==='pdf'){const a=document.createElement('a');a.href=data;a.target='_blank';a.rel='noopener';a.click();return}
- const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.1</div>
+ const w=window.open();if(w)w.document.write(`<title>${esc(d.title)}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${data}" style="max-width:100%;max-height:100vh"><div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
 </body>`);
 }
 function viewArchiveImage(id){viewArchiveFile(id)}
@@ -467,7 +470,7 @@ function savePersonal(e){
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js?v=11-fixed', { updateViaCache: 'none' });
+      const reg = await navigator.serviceWorker.register('./sw.js?v=11-2', { updateViaCache: 'none' });
       await reg.update();
 
       // If a new worker is already waiting, activate it immediately.
@@ -501,9 +504,6 @@ if ('serviceWorker' in navigator) {
 
 
 /* ===== V11 FIXED FEATURES ===== */
-const V11_DAYS=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'];
-const V11_PERIODS=[['1','اول'],['2','دوم'],['3','سوم'],['4','چهارم']];
-let performanceFilter='all';
 
 function renderWorkshopsV11(){
  const el=document.getElementById('workshopsList'); if(!el)return;
@@ -589,5 +589,5 @@ function renderPerformanceV11(){
 }
 
 </script>
-<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.1</div>
+<div style="position:fixed;left:6px;bottom:64px;font-size:9px;opacity:.28;z-index:2">V11.2</div>
 </body></html>
